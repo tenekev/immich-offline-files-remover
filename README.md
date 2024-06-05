@@ -1,22 +1,22 @@
 # Immich Auto Remove Offline Files
 This is a simple Pyhon script, dressed as a Docker container, that removes Offline Files from **External** Immich libraries. It can be used to either run the script manually, or via cronjob by providing a crontab expression to the container. The container can then be added to the Immich compose stack directly.
 
-### Obtaining an Immich API key
+### 🔑 Obtaining an Immich API key
 Instructions can be found in the Immich docs - [Obtain the API key](https://immich.app/docs/features/command-line-interface#obtain-the-api-key)
 
-### Running once
+### 🔂 Running once
 To perform a manually triggered run, use the following command:
 
 ```bash
 docker run --rm -e API_URL="https://immich.mydomain.com/api/" -e API_KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" ghcr.io/tenekev/immich-offline-files-remover:latest /script/immich_auto_remove_offline_files.sh
 ```
 
-### Running on a schedule
+### 🔁 Running on a schedule
 ```bash
 docker run --name immich-offline-files-remover -e TZ="Europe/Sofia" -e CRON_EXPRESSION="0 * * * *" -e API_URL="https://immich.mydomain.com/api/" -e API_KEY="xxxxx" ghcr.io/tenekev/immich-offline-files-remover:latest
 ```
 
-### Running as part of the Immich docker-compose.yml
+### 📃 Running as part of the Immich docker-compose.yml
 Adding the container to Immich's `docker-compose.yml` file:
 
 ```yml
