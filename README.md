@@ -7,37 +7,6 @@ These orphans may occur if files are deleted from the filesystem without being p
 
 Orphaned assets can be checked via the repair page within the admin interface of Immich.
 
-## Prerequisites
-
-Before running the script, ensure you have Python installed on your machine. The script requires Python 3.x.
-
-### Download the Script
-
-Simply download the script directly. Follow these steps:
-
-1. Navigate to the GitHub page where the script is hosted.
-2. Find the script file `immich_remove_offline_files.py`.
-3. Right-click on the file and select "Save link as..." to save the script to your local machine.
-
-Alternatively, if you are familiar with `curl` or `wget`, you can download the script using a command line tool. For example:
-
-```bash
-curl -O https://raw.githubusercontent.com/Thoroslives/immich_remove_offline_files/main/immich_remove_offline_files.py
-```
-### Install Dependencies
-
-The script requires several Python packages to function correctly.
-- `requests`
-- `halo`
-- `tabulate`
-- `tqdm`
-
-These can be installed using the following command:
-```bash
-pip install requests halo tabulate tqdm
-```
-Ensure all dependencies are installed correctly before attempting to run the script.
-
 ### Prepare Configuration
 To use the script, you will need:
 - An **Admin API key** from Immich for fetching reports.
@@ -46,21 +15,15 @@ Store these keys securely and use them as required when running the script.
 
 Instructions for which can be found in the Immich docs - [Obtain the API key](https://immich.app/docs/features/command-line-interface#obtain-the-api-key)
 
-
-
-
-
-
 ### Docker
-
 A Docker image is provided to be used as a runtime environment. It can be used to either run the script manually, or via cronjob by providing a crontab expression to the container. The container can then be added to the Immich compose stack directly.
+git init
 
 #### Run the container with Docker
-
 To perform a manually triggered run, use the following command:
 
 ```bash
-docker run --rm -e TZ="Europe/Berlin" -e CRON_EXPRESSION="0 * * * *" -e API_URL="https://immich.mydomain.com/api/" -e API_KEY_ADMIN="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" -e API_KEY_USER="xxxxxxxxxxxxxxxxxxxxxxxxxxxxx" ghcr.io/tenekev/immich-offline-files-remover:latest /script/immich-offline-files-remover.sh
+docker run --rm -e API_URL="https://immich.mydomain.com/api/" -e API_KEY_ADMIN="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" -e API_KEY_USER="xxxxxxxxxxxxxxxxxxxxxxxxxxxxx" ghcr.io/tenekev/immich-offline-files-remover:latest /script/immich_auto_remove_offline_files.sh
 ```
 To make a container: 
 
@@ -103,21 +66,8 @@ services:
 
 ```
 
+## CMD Usage
 
-
-
-
-
-
-
-
-
-## Usage
-
-To run the script, navigate to the directory containing the script and execute:
-```bash
-python3 immich_remove_offline_files.py
-```
 ### Optional Arguments
 
 - `--admin_apikey [ADMIN_API_KEY]`: Immich admin API key for fetching reports.
@@ -126,15 +76,10 @@ python3 immich_remove_offline_files.py
 - `--no_prompt`: Enables deleting orphaned media assets without confirmation.
 
 ### Examples
-
-To run the script with prompts for necessary inputs:
-```bash
-python3 immich_remove_offline_files.py
-```
-To run the script without prompts (useful for automation):
 ```bash
 python3 immich_remove_offline_files.py --admin_apikey "your_admin_api_key" --user_apikey "your_user_api_key" --immichaddress "http://IPADDRESS:port"
 ```
+
 ## How It Works
 
 The script performs the following steps:
