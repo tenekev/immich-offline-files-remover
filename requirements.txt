@@ -1,0 +1,4 @@
+requests
+halo
+tabulate
+tqdm
