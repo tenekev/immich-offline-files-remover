@@ -9,7 +9,14 @@ on:
     - dev
     tags:
     - '[0-9]+.*'
-    
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  packages: write
+
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -60,6 +67,19 @@ jobs:
       #   with:
       #     username: ${{ secrets.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Build and push image
+        uses: docker/build-push-action@v5.1.0
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          platforms: ${{ matrix.platforms }}
+          # Skip pushing when PR from a fork
+          push: ${{ !github.event.pull_request.head.repo.fork }}
+          cache-from: type=registry,ref=ghcr.io/${{ steps.sanitize_names.outputs.lowercase }}/mini-qr-build-cache:${{matrix.image}}
+          cache-to: ${{ steps.cache-target.outputs.cache-to }}
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
 
       - name: Build and push
         uses: docker/build-push-action@v5
