@@ -2,8 +2,32 @@
 
 import argparse
 import requests
+import logging, sys, datetime
 from urllib.parse import urlparse
-from halo import Halo
+
+# Function to format the log messages with date and time
+class DateTimeFormatter(logging.Formatter):
+  def formatTime(self, record, datefmt=None):
+    dt = datetime.datetime.fromtimestamp(record.created)
+    if datefmt:
+      s = dt.strftime(datefmt)
+    else:
+      s = dt.isoformat(sep=' ', timespec='seconds')
+    return s
+
+# Set up logging to output to stdout with date and time
+logging.basicConfig(
+  stream=sys.stdout, 
+  level=logging.INFO, 
+  format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+# Update the formatter to include date and time
+for handler in logging.getLogger().handlers:
+  handler.setFormatter(DateTimeFormatter(
+    fmt='%(asctime)s - %(levelname)s - %(message)s'
+  ))
+
 
 def parse_arguments():
   parser = argparse.ArgumentParser(description='Fetch file report and delete orphaned media assets from Immich.')
@@ -12,6 +36,9 @@ def parse_arguments():
   return parser.parse_args()
 
 def main():
+  
+  logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
   args = parse_arguments()
 
   # Prompt for admin API key if not provided
@@ -38,29 +65,29 @@ def main():
   }
 
   print()
-  spinner = Halo(text='Retrieving list of Immich libraries...', spinner='dots')
-  spinner.start()
+  logging.info('Retrieving list of Immich libraries...')
+
   try:
     response = requests.request("GET", immich_api_url_libs, headers=headers)
     response.raise_for_status()
-    spinner.succeed('External libraries found:')
+    logging.info('External libraries found:')
   except requests.exceptions.RequestException as e:
-    spinner.fail(f'Failed to fetch libraries: {str(e)}')
+    logging.error(f'Failed to fetch libraries: {str(e)}')
     return
   
   for library in ( x for x in response.json() if x['type'] == 'EXTERNAL' ):
     immich_api_url_offline = f'{api_url}/library/{library["id"]}/removeOffline'
 
-    spinner2 = Halo(text=f'Cleaning "{library["name"]}" [{library["id"]}]', spinner='dots')
-    spinner2.start()
+    logging.info(f'Cleaning "{library["name"]}" [{library["id"]}]')
     try:
       response = requests.request("POST", immich_api_url_offline, headers=headers)
       response.raise_for_status()
-      spinner2.succeed(f'Cleaned "{library["name"]}" [{library["id"]}]')
+      logging.info(f'Cleaned  "{library["name"]}" [{library["id"]}]')
     
     except requests.exceptions.RequestException as e:
-      spinner2.fail(f'Failed "{library["name"]}" [{library["id"]}]')
+      logging.error(f'Failed "{library["name"]}" [{library["id"]}]')
       return
+
   print()
 
 if __name__ == '__main__':
