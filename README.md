@@ -38,6 +38,11 @@ services:
       TZ: Europe/Sofia
 ```
 
+You can still trigger the script manually by issuing the following command in the container shell:
+```sh
+/script/immich_auto_remove_offline_files.sh
+```
+
 ## License
 
 This project is licensed under the GNU Affero General Public License version 3 (AGPLv3) to align with the licensing of Immich, which this script interacts with. For more details on the rights and obligations under this license, see the [GNU licenses page](https://opensource.org/license/agpl-v3).
