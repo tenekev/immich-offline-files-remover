@@ -8,12 +8,12 @@ Instructions can be found in the Immich docs - [Obtain the API key](https://immi
 To perform a manually triggered run, use the following command:
 
 ```bash
-docker run --rm -e API_URL="https://immich.mydomain.com/api/" -e API_KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" ghcr.io/tenekev/immich-offline-files-remover:latest /script/immich_auto_remove_offline_files.sh
+docker run --rm -e API_URL="https://immich.mydomain.com/api/" -e API_KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" -e OFFLINE_THRESHOLD=100 ghcr.io/tenekev/immich-offline-files-remover:latest /script/immich_auto_remove_offline_files.sh
 ```
 
 ### 🔁 Running on a schedule
 ```bash
-docker run --name immich-offline-files-remover -e TZ="Europe/Sofia" -e CRON_EXPRESSION="0 * * * *" -e API_URL="https://immich.mydomain.com/api/" -e API_KEY="xxxxx" ghcr.io/tenekev/immich-offline-files-remover:latest
+docker run --name immich-offline-files-remover -e TZ="Europe/Sofia" -e CRON_EXPRESSION="0 * * * *" -e API_URL="https://immich.mydomain.com/api/" -e API_KEY="xxxxx" -e OFFLINE_THRESHOLD=100 ghcr.io/tenekev/immich-offline-files-remover:latest
 ```
 
 ### 📃 Running as part of the Immich docker-compose.yml
@@ -34,6 +34,7 @@ services:
     environment:
       API_URL: http://immich_server:3001/api
       API_KEY: xxxxxxxxxxxxxxxxx               # https://immich.app/docs/features/command-line-interface#obtain-the-api-key
+      OFFLINE_THRESHOLD: 100                   # If the number of offline files exceed this number, they won't be cleaned. Indicates an issue with availability.
       CRON_EXPRESSION: "0 */1 * * *"           # Run every hour
       TZ: Europe/Sofia
 ```
