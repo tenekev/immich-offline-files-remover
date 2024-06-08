@@ -120,7 +120,7 @@ def main():
           logging.INFO, f'➡️  Skipping cleaning beacuse there are no offline files.'
         )
   
-      elif len(offline_files) >= args.offline_threshold:
+      elif len(offline_files) >= int(args.offline_threshold):
         logger.set_indent_level(2).log_with_indent(
           logging.WARNING, f'⚠️  There are {len(offline_files)} offline files which is more than the desired threshold of {args.offline_threshold}! Skipping cleaning! Check if the external libraries are available before manual cleaning!'
         )
