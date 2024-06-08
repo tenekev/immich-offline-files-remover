@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 
 
 class CustomLogger(logging.Logger):
-  def __init__(self, name, level=logging.NOTSET):
+  def __init__(self, name, level=logging.NOTSET, stream=sys.stdout):
     super().__init__(name, level)
 
   def set_indent_level(self, indent_level):
@@ -131,7 +131,7 @@ def main():
         )
 
         immich_api_url_offline = f'{immich_api_url}/library/{library["id"]}/removeOffline'
-        
+
         try:
           cleaning_response = requests.request("POST", immich_api_url_offline, headers=headers)
           cleaning_response.raise_for_status()
