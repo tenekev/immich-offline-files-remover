@@ -130,8 +130,8 @@ def main():
           logging.INFO, f'🗑️  Attempting to clean library...'
         )
 
-        immich_api_url_offline = f'{api_url}/library/{library["id"]}/removeOffline'
-
+        immich_api_url_offline = f'{immich_api_url}/library/{library["id"]}/removeOffline'
+        
         try:
           cleaning_response = requests.request("POST", immich_api_url_offline, headers=headers)
           cleaning_response.raise_for_status()
