@@ -31,7 +31,7 @@ class Immich():
     self.assets = list()
     self.libraries = list()
   
-  def fetchAssets(self, size: int = 1000, page: int = 1) -> list:
+  def fetchAssets(self, logger, size: int = 1000, page: int = 1) -> list:
     payload = {
       'size' : size,
       'page' : page
@@ -66,7 +66,7 @@ class Immich():
     
     return self.assets
 
-  def fetchLibraries(self) -> list:
+  def fetchLibraries(self, logger) -> list:
     logger.info('⬇️  Fetching libraries: ')
 
     session = requests.Session()
@@ -88,7 +88,7 @@ class Immich():
 
     return self.libraries
 
-  def removeOfflineFiles(self, library_id: str) -> None:
+  def removeOfflineFiles(self, library_id: str, logger) -> None:
     session = requests.Session()
     retry = Retry(connect=3, backoff_factor=0.5)
     adapter = HTTPAdapter(max_retries=retry)
@@ -125,8 +125,8 @@ def main():
   logger.info('============== INITIALIZING ==============')
   
   immich = Immich(api_url, api_key)
-  immich.fetchLibraries()
-  immich.fetchAssets()
+  immich.fetchLibraries(logger)
+  immich.fetchAssets(logger)
 
   for library in immich.libraries:
     
@@ -145,7 +145,7 @@ def main():
     
     elif offline > 0:
       logger.info(f'  🚮 Removing {offline} files.')
-      immich.removeOfflineFiles(library["id"]);
+      immich.removeOfflineFiles(library["id"], logger);
     
     else:
       logger.info(f'  ➡️  Skipping cleaning beacuse there are no offline files.')
