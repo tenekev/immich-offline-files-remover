@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import requests
 import logging, sys
 from datetime import datetime
 
@@ -21,7 +20,7 @@ class DateTimeFormatter(logging.Formatter):
 
 logging.basicConfig(
   stream=sys.stdout, 
-  level=logging.INFO, 
+  level=logging.NOTSET, 
   format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
@@ -121,8 +120,6 @@ class Immich():
 
 def main():
   args = parse_arguments()
-
-
 
   # Prompt for admin API key if not provided
   api_key = args.api_key if args.api_key else input('Enter the Immich API key: ')
