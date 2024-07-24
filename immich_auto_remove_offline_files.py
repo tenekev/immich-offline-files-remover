@@ -55,8 +55,8 @@ class Immich():
     assets_total = list()
     assets_received = size
 
-    logging.info(f'⬇️  Fetching assets: ')
-    logging.info(f'   Page size: {size}')
+    logger.info(f'⬇️  Fetching assets: ')
+    logger.info(f'   Page size: {size}')
 
     while assets_received == size:
 
@@ -69,7 +69,7 @@ class Immich():
       response = session.post(f"{self.api_url}/search/metadata", headers=self.headers, json=payload)
 
       if not response.ok:
-        logging.error('   Error:', response.status_code, response.text)
+        logger.error('   Error:', response.status_code, response.text)
 
       assets_total = assets_total + response.json()['assets']['items']
       payload["page"] += 1
@@ -77,13 +77,13 @@ class Immich():
     
     self.assets = assets_total
     
-    logging.info(f'   Pages: {payload["page"]}')   
-    logging.info(f'   Assets: {len(self.assets)}')
+    logger.info(f'   Pages: {payload["page"]}')   
+    logger.info(f'   Assets: {len(self.assets)}')
     
     return self.assets
 
   def fetchLibraries(self) -> list:
-    logging.info('⬇️  Fetching libraries: ')
+    logger.info('⬇️  Fetching libraries: ')
 
     session = requests.Session()
     retry = Retry(connect=3, backoff_factor=0.5)
@@ -94,13 +94,13 @@ class Immich():
     response = session.get(f"{self.api_url}/libraries", headers=self.headers)
 
     if not response.ok:
-      logging.error('   Error:', response.status_code, response.text)
+      logger.error('   Error:', response.status_code, response.text)
 
     self.libraries = response.json()
 
     for lib in self.libraries:
-      logging.info(f'     {lib["id"]} {lib["name"]}')
-    logging.info(f'   Libraries: {len(self.libraries)}')
+      logger.info(f'     {lib["id"]} {lib["name"]}')
+    logger.info(f'   Libraries: {len(self.libraries)}')
 
     return self.libraries
 
@@ -114,9 +114,9 @@ class Immich():
     response = session.post(f"{self.api_url}/libraries/{library_id}/removeOffline", headers=self.headers)
 
     if response.ok:
-      logging.info("  🟢 Success!")
+      logger.info("  🟢 Success!")
     else:
-      logging.error(f"  🔴 Error! {response.status_code} {response.text}") 
+      logger.error(f"  🔴 Error! {response.status_code} {response.text}") 
 
 def main():
   args = parse_arguments()
@@ -137,7 +137,7 @@ def main():
     print("API URL is required")
     return
 
-  logging.info('============== INITIALIZING ==============')
+  logger.info('============== INITIALIZING ==============')
   
   immich = Immich(api_url, api_key)
   immich.fetchLibraries()
@@ -146,24 +146,24 @@ def main():
   for library in immich.libraries:
     
     offline = 0
-    logging.info(f'Offline Assets in "{library["name"]}":')
+    logger.info(f'Offline Assets in "{library["name"]}":')
     
     for asset in immich.assets:
       if asset["libraryId"] == library["id"]:
         if asset["isOffline"] == True:
           
           offline += 1
-          logging.info(f'     ⭕ {asset["id"]} {asset["originalPath"]}')
+          logger.info(f'     ⭕ {asset["id"]} {asset["originalPath"]}')
 
     if offline >= int(offline_threshold):
-      logging.warning(f'⚠️  There are {offline} offline files which is more than the desired threshold of {offline_threshold}! Skipping cleaning! Check if the external libraries are available before manual cleaning!')
+      logger.warning(f'⚠️  There are {offline} offline files which is more than the desired threshold of {offline_threshold}! Skipping cleaning! Check if the external libraries are available before manual cleaning!')
     
     elif offline > 0:
-      logging.info(f'  🚮 Removing {offline} files.')
+      logger.info(f'  🚮 Removing {offline} files.')
       immich.removeOfflineFiles(library["id"]);
     
     else:
-      logging.info(f'  ➡️  Skipping cleaning beacuse there are no offline files.')
+      logger.info(f'  ➡️  Skipping cleaning beacuse there are no offline files.')
 
 if __name__ == '__main__':
   main()
