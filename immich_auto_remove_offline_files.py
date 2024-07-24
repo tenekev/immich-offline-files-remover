@@ -13,6 +13,7 @@ logging.basicConfig(
   level=logging.INFO, 
   format='%(asctime)s - %(levelname)s - %(message)s'
 )
+logger = logging.getLogger(__name__)
 
 def parse_arguments():
   parser = argparse.ArgumentParser(description='Fetch file report and delete orphaned media assets from Immich.')
@@ -31,7 +32,7 @@ class Immich():
     self.assets = list()
     self.libraries = list()
   
-  def fetchAssets(self, logger, size: int = 1000, page: int = 1) -> list:
+  def fetchAssets(self, size: int = 1000, page: int = 1) -> list:
     payload = {
       'size' : size,
       'page' : page
@@ -66,7 +67,7 @@ class Immich():
     
     return self.assets
 
-  def fetchLibraries(self, logger) -> list:
+  def fetchLibraries(self) -> list:
     logger.info('⬇️  Fetching libraries: ')
 
     session = requests.Session()
@@ -88,7 +89,7 @@ class Immich():
 
     return self.libraries
 
-  def removeOfflineFiles(self, library_id: str, logger) -> None:
+  def removeOfflineFiles(self, library_id: str) -> None:
     session = requests.Session()
     retry = Retry(connect=3, backoff_factor=0.5)
     adapter = HTTPAdapter(max_retries=retry)
@@ -103,7 +104,6 @@ class Immich():
       logger.error(f"  🔴 Error! {response.status_code} {response.text}") 
 
 def main():
-  logger = logging.getLogger()
   args = parse_arguments()
 
   # Prompt for admin API key if not provided
@@ -125,8 +125,8 @@ def main():
   logger.info('============== INITIALIZING ==============')
   
   immich = Immich(api_url, api_key)
-  immich.fetchLibraries(logger)
-  immich.fetchAssets(logger)
+  immich.fetchLibraries()
+  immich.fetchAssets()
 
   for library in immich.libraries:
     
@@ -145,7 +145,7 @@ def main():
     
     elif offline > 0:
       logger.info(f'  🚮 Removing {offline} files.')
-      immich.removeOfflineFiles(library["id"], logger);
+      immich.removeOfflineFiles(library["id"]);
     
     else:
       logger.info(f'  ➡️  Skipping cleaning beacuse there are no offline files.')
