@@ -2,33 +2,17 @@
 
 import argparse
 import logging, sys
-from datetime import datetime
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from urllib.parse import urlparse
 
-# class DateTimeFormatter(logging.Formatter):
-#   def formatTime(self, record, datefmt=None):
-#     dt = datetime.fromtimestamp(record.created)
-#     if datefmt:
-#       s = dt.strftime(datefmt)
-#     else:
-#       s = dt.isoformat(sep=' ', timespec='seconds')
-#     return s
-
 logging.basicConfig(
   stream=sys.stdout, 
   level=logging.INFO, 
   format='%(asctime)s - %(levelname)s - %(message)s'
 )
-
-logger = logging.getLogger()
-# for handler in logging.getLogger().handlers:
-#   handler.setFormatter(DateTimeFormatter(
-#     fmt='%(asctime)s - %(levelname)s - %(message)s'
-#   ))
 
 def parse_arguments():
   parser = argparse.ArgumentParser(description='Fetch file report and delete orphaned media assets from Immich.')
@@ -119,6 +103,7 @@ class Immich():
       logger.error(f"  🔴 Error! {response.status_code} {response.text}") 
 
 def main():
+  logger = logging.getLogger()
   args = parse_arguments()
 
   # Prompt for admin API key if not provided
