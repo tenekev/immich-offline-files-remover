@@ -24,6 +24,7 @@ logging.basicConfig(
   format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+logger = logging.getLogger()
 # for handler in logging.getLogger().handlers:
 #   handler.setFormatter(DateTimeFormatter(
 #     fmt='%(asctime)s - %(levelname)s - %(message)s'
