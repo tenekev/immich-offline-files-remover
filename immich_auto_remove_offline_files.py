@@ -3,7 +3,7 @@
 import argparse
 import logging, sys
 
-import requests
+from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from urllib.parse import urlparse
@@ -32,20 +32,21 @@ class Immich():
     self.assets = list()
     self.libraries = list()
   
-  def fetchAssets(self, size: int = 1000, page: int = 1) -> list:
+  def fetchAssets(self, size: int = 1000) -> list:
     payload = {
       'size' : size,
-      'page' : page
+      'page' : 1,
+      #'withExif': True,
+      'withStacked': True
     }
     assets_total = list()
-    assets_received = size
 
     logger.info(f'⬇️  Fetching assets: ')
     logger.info(f'   Page size: {size}')
 
-    while assets_received == size:
+    while payload["page"] != None:
 
-      session = requests.Session()
+      session = Session()
       retry = Retry(connect=3, backoff_factor=0.5)
       adapter = HTTPAdapter(max_retries=retry)
       session.mount('http://', adapter)
@@ -57,8 +58,7 @@ class Immich():
         logger.error('   Error:', response.status_code, response.text)
 
       assets_total = assets_total + response.json()['assets']['items']
-      payload["page"] += 1
-      assets_received = len(response.json()['assets']['items'])
+      payload["page"] = response.json()['assets']['nextPage']
     
     self.assets = assets_total
     
@@ -70,7 +70,7 @@ class Immich():
   def fetchLibraries(self) -> list:
     logger.info('⬇️  Fetching libraries: ')
 
-    session = requests.Session()
+    session = Session()
     retry = Retry(connect=3, backoff_factor=0.5)
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
@@ -90,7 +90,7 @@ class Immich():
     return self.libraries
 
   def removeOfflineFiles(self, library_id: str) -> None:
-    session = requests.Session()
+    session = Session()
     retry = Retry(connect=3, backoff_factor=0.5)
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
@@ -113,7 +113,7 @@ def main():
   api_url = args.api_url if args.api_url else input('Enter the full web address for Immich, including protocol and port: ')
 
   # Set default offline_threshold of 50 files. If there are More than 50 files missing, the cleaner will skip the cleaning and issue a warning. This is in case the External Library goes offline and all assets get flagged.
-  offline_threshold = args.offline_threshold if args.offline_threshold else 50
+  offline_threshold = args.offline_threshold if args.offline_threshold else 100
 
   if not api_key:
     print("API key is required")
